@@ -4,7 +4,7 @@ use futures::{SinkExt, StreamExt};
 use models::{ClientMessage, Room, Rooms, ServerMessage, User};
 use rocket::fs::{FileServer, Options, relative};
 use rocket::serde::json::Json;
-use rocket::{State, get, launch, post, routes};
+use rocket::{State, get, post, routes};
 use rocket_dyn_templates::{Template, context};
 use rocket_ws::{Channel, WebSocket};
 use std::collections::HashMap;
@@ -100,10 +100,10 @@ async fn subscribe_to_room(
     broadcast_rx: &mut Option<tokio::sync::broadcast::Receiver<String>>,
 ) {
     let rooms_lock = rooms.read().await;
-    if let Some(room) = rooms_lock.get(room_id)
-        && let Some(ref tx) = room.broadcast_tx
-    {
-        *broadcast_rx = Some(tx.subscribe());
+    if let Some(room) = rooms_lock.get(room_id) {
+        if let Some(ref tx) = room.broadcast_tx {
+            *broadcast_rx = Some(tx.subscribe());
+        }
     }
 }
 
@@ -160,11 +160,11 @@ async fn receive_broadcast(
 
 async fn broadcast_to_room(rooms: &Rooms, room_id: &str, message: ServerMessage) {
     let rooms_lock = rooms.read().await;
-    if let Some(room) = rooms_lock.get(room_id)
-        && let Some(ref tx) = room.broadcast_tx
-    {
-        let json = serde_json::to_string(&message).unwrap();
-        let _ = tx.send(json);
+    if let Some(room) = rooms_lock.get(room_id) {
+        if let Some(ref tx) = room.broadcast_tx {
+            let json = serde_json::to_string(&message).unwrap();
+            let _ = tx.send(json);
+        }
     }
 }
 
@@ -221,11 +221,11 @@ async fn handle_message(msg: ClientMessage, rooms: &Rooms) -> Result<ServerMessa
     }
 }
 
-#[launch]
-fn rocket() -> _ {
+#[shuttle_runtime::main]
+async fn main() -> shuttle_rocket::ShuttleRocket {
     let rooms: Rooms = Arc::new(RwLock::new(HashMap::new()));
 
-    rocket::build()
+    let rocket = rocket::build()
         .attach(Template::fairing())
         .manage(rooms)
         .mount(
@@ -235,5 +235,7 @@ fn rocket() -> _ {
                 Options::Missing | Options::NormalizeDirs,
             ),
         )
-        .mount("/", routes![root, session, create_room, ws])
+        .mount("/", routes![root, session, create_room, ws]);
+
+    Ok(rocket.into())
 }

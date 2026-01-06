@@ -1,6 +1,0 @@
-target/
-.git/
-.gitignore
-*.md
-fly.toml
-.env

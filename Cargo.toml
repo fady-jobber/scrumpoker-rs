@@ -1,7 +1,7 @@
 [package]
 name = "scrumpoker-rs"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
 
 [dependencies]
 rocket = { version = "0.5.1", features = ["json"] }
@@ -13,3 +13,5 @@ tokio = { version = "1", features = ["sync"] }
 uuid = { version = "1.0", features = ["v4", "serde"] }
 futures = "0.3"
 rand = "0.8"
+shuttle-runtime = "0.49.0"
+shuttle-rocket = "0.49.0"
