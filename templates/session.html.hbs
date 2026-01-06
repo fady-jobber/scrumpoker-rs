@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/public/css/pico.min.css" rel="stylesheet">
+    <title>Scrum Poker - Session</title>
+    <style>
+        body {
+            padding: 1rem;
+        }
+        main.container {
+            max-width: 700px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            gap: 1rem;
+        }
+        h1 {
+            font-size: 1.5rem;
+            margin: 0;
+        }
+        .session-badge {
+            background: var(--primary);
+            color: white;
+            padding: 0.4rem 1rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            letter-spacing: 0.1em;
+            font-family: monospace;
+        }
+        .share-section {
+            background: var(--card-background-color);
+            border: 1px solid var(--card-border-color);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .share-url-container {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        .share-url {
+            flex: 1;
+            font-family: monospace;
+            font-size: 0.85rem;
+            padding: 0.5rem 0.75rem;
+            background: var(--background-color);
+            border: 1px solid var(--card-border-color);
+            border-radius: 0.25rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .copy-btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            margin: 0;
+            white-space: nowrap;
+        }
+        .voting-section {
+            background: var(--card-background-color);
+            border: 1px solid var(--card-border-color);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .section-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--muted-color);
+            margin-bottom: 0.75rem;
+        }
+        .voting-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .voting-buttons button {
+            flex: 1;
+            min-width: 60px;
+            font-size: 1.25rem;
+            padding: 0.6rem;
+            margin: 0;
+            font-weight: 600;
+        }
+        .users-section {
+            background: var(--card-background-color);
+            border: 1px solid var(--card-border-color);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .users-list {
+            display: grid;
+            gap: 0.5rem;
+        }
+        .user-card {
+            padding: 0.75rem;
+            background: var(--background-color);
+            border: 1px solid var(--card-border-color);
+            border-radius: 0.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .user-card.voted {
+            border-left: 3px solid #4caf50;
+        }
+        .user-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .user-name.current-user {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        .estimate {
+            font-size: 1.25rem;
+            font-weight: 700;
+            min-width: 40px;
+            text-align: right;
+        }
+        .estimate.hidden {
+            color: #4caf50;
+        }
+        .estimate.no-vote {
+            color: var(--muted-color);
+            font-weight: 400;
+        }
+        .controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .controls button {
+            flex: 1;
+            font-size: 0.9rem;
+            padding: 0.7rem;
+            margin: 0;
+        }
+        .empty-state {
+            text-align: center;
+            color: var(--muted-color);
+            padding: 2rem 1rem;
+            font-size: 0.9rem;
+        }
+        .join-interface {
+            display: block;
+        }
+        .session-interface {
+            display: none;
+        }
+        body.joined .join-interface {
+            display: none;
+        }
+        body.joined .session-interface {
+            display: block;
+        }
+        .join-container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .join-container h1 {
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+        .join-container article {
+            padding: 1.5rem;
+        }
+        .join-container input[type="text"] {
+            font-size: 0.9rem;
+            padding: 0.5rem 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+        .join-container label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        .join-container button {
+            font-size: 0.9rem;
+            padding: 0.6rem 1rem;
+            margin-bottom: 0.5rem;
+            width: 100%;
+        }
+        .session-code-display {
+            text-align: center;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: var(--muted-color);
+        }
+        .session-code-display strong {
+            color: var(--primary);
+            font-size: 1.5rem;
+            font-family: monospace;
+            letter-spacing: 0.1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="join-interface">
+        <main class="join-container">
+            <h1>🦀 Scrum Poker</h1>
+            <div class="session-code-display">
+                Session Code: <strong>{{room_id}}</strong>
+            </div>
+            <article>
+                <label for="nameInput">Name</label>
+                <input type="text" id="nameInput" placeholder="Enter your name" required autofocus>
+                <button id="joinBtn">Join Session</button>
+            </article>
+        </main>
+    </div>
+
+    <main class="container session-interface">
+        <div class="header">
+            <h1>🦀 Scrum Poker</h1>
+            <div class="session-badge">{{room_id}}</div>
+        </div>
+
+        <div class="share-section">
+            <div class="section-title">Share this session</div>
+            <div class="share-url-container">
+                <div class="share-url" id="shareUrl"></div>
+                <button class="copy-btn secondary" onclick="copyUrl()">Copy</button>
+            </div>
+        </div>
+
+        <div class="voting-section">
+            <div class="section-title">Your Vote</div>
+            <div class="voting-buttons">
+                <button onclick="vote('1')">1</button>
+                <button onclick="vote('2')">2</button>
+                <button onclick="vote('3')">3</button>
+                <button onclick="vote('5')">5</button>
+                <button onclick="vote('8')">8</button>
+                <button onclick="vote('?')">?</button>
+            </div>
+        </div>
+
+        <div class="users-section">
+            <div class="section-title">Participants</div>
+            <div class="users-list" id="usersList">
+                <div class="empty-state">Waiting for participants...</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button onclick="showEstimates()">Show Estimates</button>
+            <button onclick="clearEstimates()" class="secondary">Clear All</button>
+        </div>
+    </main>
+
+    <script>
+        const roomId = "{{room_id}}";
+        const urlParams = new URLSearchParams(window.location.search);
+        let userName = urlParams.get('name');
+        let userId = null;
+        let ws = null;
+        let currentRoom = null;
+
+        const shareUrl = window.location.origin + '/session/' + roomId;
+        document.getElementById('shareUrl').textContent = shareUrl;
+
+        if (!userName) {
+            document.getElementById('joinBtn').addEventListener('click', submitName);
+            document.getElementById('nameInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') submitName();
+            });
+        } else {
+            document.body.classList.add('joined');
+            connectWebSocket();
+        }
+
+        function submitName() {
+            const input = document.getElementById('nameInput');
+            const name = input.value.trim();
+            if (!name) {
+                alert('Please enter your name');
+                return;
+            }
+
+            userName = name;
+            const url = new URL(window.location);
+            url.searchParams.set('name', name);
+            window.history.replaceState({}, '', url);
+
+            document.body.classList.add('joined');
+            connectWebSocket();
+        }
+
+        function copyUrl() {
+            navigator.clipboard.writeText(shareUrl).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            }).catch(err => {
+                alert('Failed to copy URL');
+            });
+        }
+
+        function connectWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            ws = new WebSocket(`${protocol}//${window.location.host}/ws`);
+
+            ws.onopen = () => {
+                console.log('WebSocket connected');
+                ws.send(JSON.stringify({
+                    type: 'Join',
+                    room_id: roomId,
+                    name: userName
+                }));
+            };
+
+            ws.onmessage = (event) => {
+                const message = JSON.parse(event.data);
+                handleServerMessage(message);
+            };
+
+            ws.onclose = () => {
+                console.log('WebSocket disconnected');
+                setTimeout(connectWebSocket, 3000);
+            };
+
+            ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+            };
+        }
+
+        function handleServerMessage(message) {
+            if (message.type === 'Joined') {
+                userId = message.user_id;
+                console.log('Joined with user ID:', userId);
+            } else if (message.type === 'RoomState') {
+                currentRoom = message.room;
+                updateUI();
+            } else if (message.type === 'Error') {
+                alert('Error: ' + message.message);
+            }
+        }
+
+        function updateUI() {
+            if (!currentRoom) return;
+
+            const usersList = document.getElementById('usersList');
+            usersList.innerHTML = '';
+
+            const users = Object.values(currentRoom.users);
+
+            if (users.length === 0) {
+                usersList.innerHTML = '<div class="empty-state">Waiting for participants...</div>';
+                return;
+            }
+
+            users.forEach(user => {
+                const userCard = document.createElement('div');
+                userCard.className = 'user-card';
+                if (user.estimate) {
+                    userCard.classList.add('voted');
+                }
+
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'user-name';
+                if (user.id === userId) {
+                    nameSpan.classList.add('current-user');
+                    nameSpan.textContent = user.name + ' (You)';
+                } else {
+                    nameSpan.textContent = user.name;
+                }
+
+                const estimateSpan = document.createElement('span');
+                estimateSpan.className = 'estimate';
+
+                if (user.estimate) {
+                    if (currentRoom.revealed) {
+                        estimateSpan.textContent = user.estimate;
+                    } else {
+                        estimateSpan.className = 'estimate hidden';
+                        estimateSpan.textContent = '✓';
+                    }
+                } else {
+                    estimateSpan.className = 'estimate no-vote';
+                    estimateSpan.textContent = '—';
+                }
+
+                userCard.appendChild(nameSpan);
+                userCard.appendChild(estimateSpan);
+                usersList.appendChild(userCard);
+            });
+        }
+
+        function vote(estimate) {
+            if (!ws || !userId) return;
+
+            ws.send(JSON.stringify({
+                type: 'Vote',
+                room_id: roomId,
+                user_id: userId,
+                estimate: estimate
+            }));
+        }
+
+        function showEstimates() {
+            if (!ws) return;
+
+            ws.send(JSON.stringify({
+                type: 'Show',
+                room_id: roomId
+            }));
+        }
+
+        function clearEstimates() {
+            if (!ws) return;
+
+            ws.send(JSON.stringify({
+                type: 'Clear',
+                room_id: roomId
+            }));
+        }
+    </script>
+</body>
+</html>
