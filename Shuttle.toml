@@ -1,4 +1,0 @@
-name = "scrumpoker-rs"
-
-[build]
-assets = ["templates/*", "templates/**/*", "public/*", "public/**/*"]

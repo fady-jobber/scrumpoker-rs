@@ -4,7 +4,7 @@ use futures::{SinkExt, StreamExt};
 use models::{ClientMessage, Room, Rooms, ServerMessage, User};
 use rocket::fs::{FileServer, Options, relative};
 use rocket::serde::json::Json;
-use rocket::{State, get, post, routes};
+use rocket::{State, get, launch, post, routes};
 use rocket_dyn_templates::{Template, context};
 use rocket_ws::{Channel, WebSocket};
 use std::collections::HashMap;
@@ -221,11 +221,11 @@ async fn handle_message(msg: ClientMessage, rooms: &Rooms) -> Result<ServerMessa
     }
 }
 
-#[shuttle_runtime::main]
-async fn main() -> shuttle_rocket::ShuttleRocket {
+#[launch]
+fn rocket() -> _ {
     let rooms: Rooms = Arc::new(RwLock::new(HashMap::new()));
 
-    let rocket = rocket::build()
+    rocket::build()
         .attach(Template::fairing())
         .manage(rooms)
         .mount(
@@ -235,7 +235,5 @@ async fn main() -> shuttle_rocket::ShuttleRocket {
                 Options::Missing | Options::NormalizeDirs,
             ),
         )
-        .mount("/", routes![root, session, create_room, ws]);
-
-    Ok(rocket.into())
+        .mount("/", routes![root, session, create_room, ws])
 }
