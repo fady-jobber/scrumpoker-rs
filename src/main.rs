@@ -81,9 +81,12 @@ async fn handle_client_message(
                 Err(_) => return true,
             };
 
-            if let ClientMessage::Join { ref room_id, .. } = client_msg {
-                *current_room_id = Some(room_id.clone());
-                subscribe_to_room(rooms, room_id, broadcast_rx).await;
+            match &client_msg {
+                ClientMessage::Join { ref room_id, .. } | ClientMessage::Rejoin { ref room_id, .. } => {
+                    *current_room_id = Some(room_id.clone());
+                    subscribe_to_room(rooms, room_id, broadcast_rx).await;
+                }
+                _ => {}
             }
 
             process_message(client_msg, rooms, current_room_id, sink).await;
@@ -182,6 +185,23 @@ async fn handle_message(msg: ClientMessage, rooms: &Rooms) -> Result<ServerMessa
             };
 
             room.users.insert(user_id.clone(), user);
+
+            Ok(ServerMessage::Joined { user_id, room_id })
+        }
+        ClientMessage::Rejoin { room_id, user_id, name } => {
+            let mut rooms_lock = rooms.write().await;
+            let room = rooms_lock.get_mut(&room_id).ok_or("Room not found")?;
+
+            if let Some(user) = room.users.get_mut(&user_id) {
+                user.name = name;
+            } else {
+                let user = User {
+                    id: user_id.clone(),
+                    name,
+                    estimate: None,
+                };
+                room.users.insert(user_id.clone(), user);
+            }
 
             Ok(ServerMessage::Joined { user_id, room_id })
         }

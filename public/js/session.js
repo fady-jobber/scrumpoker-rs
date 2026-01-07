@@ -54,11 +54,23 @@ function connectWebSocket() {
 
     ws.onopen = () => {
         console.log('WebSocket connected');
-        ws.send(JSON.stringify({
-            type: 'Join',
-            room_id: roomId,
-            name: userName
-        }));
+
+        const storedUserId = localStorage.getItem(`userId_${roomId}`);
+
+        if (storedUserId) {
+            ws.send(JSON.stringify({
+                type: 'Rejoin',
+                room_id: roomId,
+                user_id: storedUserId,
+                name: userName
+            }));
+        } else {
+            ws.send(JSON.stringify({
+                type: 'Join',
+                room_id: roomId,
+                name: userName
+            }));
+        }
     };
 
     ws.onmessage = (event) => {
@@ -79,6 +91,7 @@ function connectWebSocket() {
 function handleServerMessage(message) {
     if (message.type === 'Joined') {
         userId = message.user_id;
+        localStorage.setItem(`userId_${roomId}`, userId);
         console.log('Joined with user ID:', userId);
     } else if (message.type === 'RoomState') {
         currentRoom = message.room;

@@ -43,6 +43,11 @@ pub enum ClientMessage {
         room_id: String,
         name: String,
     },
+    Rejoin {
+        room_id: String,
+        user_id: String,
+        name: String,
+    },
     Vote {
         room_id: String,
         user_id: String,
