@@ -26,8 +26,7 @@ COPY templates ./templates
 COPY public ./public
 
 ENV ROCKET_ADDRESS=0.0.0.0
-ENV ROCKET_PORT=8080
 
 EXPOSE 8080
 
-CMD ["/app/scrumpoker-rs"]
+CMD sh -c "ROCKET_PORT=${PORT:-8080} /app/scrumpoker-rs"
