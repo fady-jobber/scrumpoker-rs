@@ -1,4 +1,4 @@
-FROM rust:1.83-slim as builder
+FROM rust:latest as builder
 
 WORKDIR /app
 
@@ -24,8 +24,10 @@ WORKDIR /app
 COPY --from=builder /app/target/release/scrumpoker-rs /app/scrumpoker-rs
 COPY templates ./templates
 COPY public ./public
+COPY Rocket.toml ./Rocket.toml
 
 ENV ROCKET_ADDRESS=0.0.0.0
+ENV ROCKET_PROFILE=release
 
 EXPOSE 8080
 
