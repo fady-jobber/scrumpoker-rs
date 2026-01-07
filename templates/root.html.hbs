@@ -4,39 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="/public/css/pico.min.css" rel="stylesheet">
+    <link href="/public/css/home.css" rel="stylesheet">
     <title>Scrum Poker</title>
-    <style>
-        body {
-            padding: 2rem 1rem;
-        }
-        main.container {
-            max-width: 500px;
-        }
-        h1 {
-            font-size: 1.75rem;
-            margin-bottom: 0.5rem;
-            text-align: center;
-        }
-        article {
-            padding: 1.5rem;
-        }
-        input[type="text"] {
-            font-size: 0.9rem;
-            padding: 0.5rem 0.75rem;
-            margin-bottom: 0.75rem;
-        }
-        label {
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
-        button {
-            font-size: 0.9rem;
-            padding: 0.6rem 1rem;
-            margin-bottom: 0.5rem;
-            width: 100%;
-        }
-    </style>
 </head>
 <body>
     <main class="container">
@@ -50,26 +19,6 @@
         </article>
     </main>
 
-    <script>
-        const nameInput = document.getElementById('name');
-        const createBtn = document.getElementById('createBtn');
-
-        createBtn.addEventListener('click', async () => {
-            const name = nameInput.value.trim();
-            if (!name) {
-                alert('Please enter your name');
-                return;
-            }
-
-            const response = await fetch('/api/create_room', { method: 'POST' });
-            const roomId = await response.json();
-
-            window.location.href = `/session/${roomId}?name=${encodeURIComponent(name)}`;
-        });
-
-        nameInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') createBtn.click();
-        });
-    </script>
+    <script src="/public/js/home.js"></script>
 </body>
 </html>

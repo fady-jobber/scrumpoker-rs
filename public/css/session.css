@@ -1,0 +1,232 @@
+body {
+    padding: 1rem;
+}
+
+main.container {
+    max-width: 700px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    gap: 1rem;
+}
+
+h1 {
+    font-size: 1.5rem;
+    margin: 0;
+}
+
+.session-badge {
+    background: var(--primary);
+    color: white;
+    padding: 0.4rem 1rem;
+    border-radius: 2rem;
+    font-weight: 600;
+    font-size: 1.1rem;
+    letter-spacing: 0.1em;
+    font-family: monospace;
+}
+
+.share-section {
+    background: var(--card-background-color);
+    border: 1px solid var(--card-border-color);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.share-url-container {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.share-url {
+    flex: 1;
+    font-family: monospace;
+    font-size: 0.85rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--background-color);
+    border: 1px solid var(--card-border-color);
+    border-radius: 0.25rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.copy-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.voting-section {
+    background: var(--card-background-color);
+    border: 1px solid var(--card-border-color);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.section-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--muted-color);
+    margin-bottom: 0.75rem;
+}
+
+.voting-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.voting-buttons button {
+    flex: 1;
+    min-width: 60px;
+    font-size: 1.25rem;
+    padding: 0.6rem;
+    margin: 0;
+    font-weight: 600;
+}
+
+.users-section {
+    background: var(--card-background-color);
+    border: 1px solid var(--card-border-color);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.users-list {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.user-card {
+    padding: 0.75rem;
+    background: var(--background-color);
+    border: 1px solid var(--card-border-color);
+    border-radius: 0.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.user-card.voted {
+    border-left: 3px solid #4caf50;
+}
+
+.user-name {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.user-name.current-user {
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.estimate {
+    font-size: 1.25rem;
+    font-weight: 700;
+    min-width: 40px;
+    text-align: right;
+}
+
+.estimate.hidden {
+    color: #4caf50;
+}
+
+.estimate.no-vote {
+    color: var(--muted-color);
+    font-weight: 400;
+}
+
+.controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.controls button {
+    flex: 1;
+    font-size: 0.9rem;
+    padding: 0.7rem;
+    margin: 0;
+}
+
+.empty-state {
+    text-align: center;
+    color: var(--muted-color);
+    padding: 2rem 1rem;
+    font-size: 0.9rem;
+}
+
+.join-interface {
+    display: block;
+}
+
+.session-interface {
+    display: none;
+}
+
+body.joined .join-interface {
+    display: none;
+}
+
+body.joined .session-interface {
+    display: block;
+}
+
+.join-container {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.join-container h1 {
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+.join-container article {
+    padding: 1.5rem;
+}
+
+.join-container input[type="text"] {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.join-container label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.join-container button {
+    font-size: 0.9rem;
+    padding: 0.6rem 1rem;
+    margin-bottom: 0.5rem;
+    width: 100%;
+}
+
+.session-code-display {
+    text-align: center;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    color: var(--muted-color);
+}
+
+.session-code-display strong {
+    color: var(--primary);
+    font-size: 1.5rem;
+    font-family: monospace;
+    letter-spacing: 0.1em;
+}

@@ -1,0 +1,36 @@
+body {
+    padding: 2rem 1rem;
+}
+
+main.container {
+    max-width: 500px;
+}
+
+h1 {
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+article {
+    padding: 1.5rem;
+}
+
+input[type="text"] {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+button {
+    font-size: 0.9rem;
+    padding: 0.6rem 1rem;
+    margin-bottom: 0.5rem;
+    width: 100%;
+}
