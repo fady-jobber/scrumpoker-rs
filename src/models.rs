@@ -2,7 +2,7 @@ use rand::Rng;
 use rocket::serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
-use tokio::sync::{RwLock, broadcast};
+use tokio::sync::{broadcast, RwLock};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct User {

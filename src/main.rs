@@ -2,10 +2,10 @@ mod models;
 
 use futures::{SinkExt, StreamExt};
 use models::{ClientMessage, Room, Rooms, ServerMessage, User};
-use rocket::fs::{FileServer, Options, relative};
+use rocket::fs::{relative, FileServer, Options};
 use rocket::serde::json::Json;
-use rocket::{State, get, launch, post, routes};
-use rocket_dyn_templates::{Template, context};
+use rocket::{get, launch, post, routes, State};
+use rocket_dyn_templates::{context, Template};
 use rocket_ws::{Channel, WebSocket};
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -48,12 +48,13 @@ async fn handle_websocket(
 ) -> Result<(), rocket_ws::result::Error> {
     let (mut sink, mut stream) = stream.split();
     let mut current_room_id: Option<String> = None;
+    let mut current_user_id: Option<String> = None;
     let mut broadcast_rx: Option<tokio::sync::broadcast::Receiver<String>> = None;
 
     loop {
         tokio::select! {
             msg = stream.next() => {
-                if !handle_client_message(msg, &mut sink, &rooms, &mut current_room_id, &mut broadcast_rx).await {
+                if !handle_client_message(msg, &mut sink, &rooms, &mut current_room_id, &mut current_user_id, &mut broadcast_rx).await {
                     break;
                 }
             }
@@ -64,6 +65,17 @@ async fn handle_websocket(
             }
         }
     }
+
+    // Cleanup: Remove user from room when websocket disconnects
+    if let (Some(room_id), Some(user_id)) = (current_room_id, current_user_id) {
+        let mut rooms_lock = rooms.write().await;
+        if let Some(room) = rooms_lock.get_mut(&room_id) {
+            room.users.remove(&user_id);
+            drop(rooms_lock);
+            broadcast_room_state(&rooms, &room_id).await;
+        }
+    }
+
     Ok(())
 }
 
@@ -72,6 +84,7 @@ async fn handle_client_message(
     sink: &mut futures::stream::SplitSink<rocket_ws::stream::DuplexStream, rocket_ws::Message>,
     rooms: &Rooms,
     current_room_id: &mut Option<String>,
+    current_user_id: &mut Option<String>,
     broadcast_rx: &mut Option<tokio::sync::broadcast::Receiver<String>>,
 ) -> bool {
     match msg {
@@ -82,14 +95,23 @@ async fn handle_client_message(
             };
 
             match &client_msg {
-                ClientMessage::Join { ref room_id, .. } | ClientMessage::Rejoin { ref room_id, .. } => {
+                ClientMessage::Join { ref room_id, .. } => {
                     *current_room_id = Some(room_id.clone());
+                    subscribe_to_room(rooms, room_id, broadcast_rx).await;
+                }
+                ClientMessage::Rejoin {
+                    ref room_id,
+                    ref user_id,
+                    ..
+                } => {
+                    *current_room_id = Some(room_id.clone());
+                    *current_user_id = Some(user_id.clone());
                     subscribe_to_room(rooms, room_id, broadcast_rx).await;
                 }
                 _ => {}
             }
 
-            process_message(client_msg, rooms, current_room_id, sink).await;
+            process_message(client_msg, rooms, current_room_id, current_user_id, sink).await;
             true
         }
         Some(Ok(rocket_ws::Message::Close(_))) | None => false,
@@ -114,10 +136,16 @@ async fn process_message(
     client_msg: ClientMessage,
     rooms: &Rooms,
     current_room_id: &Option<String>,
+    current_user_id: &mut Option<String>,
     sink: &mut futures::stream::SplitSink<rocket_ws::stream::DuplexStream, rocket_ws::Message>,
 ) {
     match handle_message(client_msg, rooms).await {
         Ok(response) => {
+            // Update current_user_id when user joins
+            if let ServerMessage::Joined { ref user_id, .. } = response {
+                *current_user_id = Some(user_id.clone());
+            }
+
             send_response(response.clone(), sink).await;
 
             if let Some(room_id) = current_room_id {
@@ -188,7 +216,11 @@ async fn handle_message(msg: ClientMessage, rooms: &Rooms) -> Result<ServerMessa
 
             Ok(ServerMessage::Joined { user_id, room_id })
         }
-        ClientMessage::Rejoin { room_id, user_id, name } => {
+        ClientMessage::Rejoin {
+            room_id,
+            user_id,
+            name,
+        } => {
             let mut rooms_lock = rooms.write().await;
             let room = rooms_lock.get_mut(&room_id).ok_or("Room not found")?;
 
