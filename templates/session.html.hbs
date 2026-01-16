@@ -8,7 +8,7 @@
     <title>Scrum Poker - Session</title>
 </head>
 <body data-room-id="{{room_id}}">
-    <!-- <img src="/public/jobber-icon.svg" alt="Jobber" style="position: fixed; top: 20px; left: 20px; height: 40px; z-index: 1000;"> -->
+    <img src="/public/jobber-icon.svg" alt="Jobber" style="position: fixed; top: 20px; left: 20px; height: 40px; z-index: 1000;">
     <div class="join-interface">
         <main class="join-container">
             <h1 style="display: flex; justify-content: space-between; align-items: center;">
@@ -60,6 +60,11 @@
             <div class="users-list" id="usersList">
                 <div class="empty-state">Waiting for participants...</div>
             </div>
+        </div>
+
+        <div id="stats-container" style="display: none; margin-bottom: 1rem;">
+            <div class="section-title">Statistics</div>
+            <div>Mean: <strong id="mean-value">-</strong></div>
         </div>
 
         <div class="controls">

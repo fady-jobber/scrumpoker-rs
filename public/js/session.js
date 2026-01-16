@@ -101,7 +101,7 @@ function handleServerMessage(message) {
     }
 }
 
-function updateUI() {
+async function updateUI() {
     if (!currentRoom) return;
 
     const usersList = document.getElementById('usersList');
@@ -149,6 +149,16 @@ function updateUI() {
         userCard.appendChild(estimateSpan);
         usersList.appendChild(userCard);
     });
+
+    const statsContainer = document.getElementById('stats-container');
+    if (currentRoom.revealed) {
+        const mean = await fetchMean();
+        document.getElementById('mean-value').textContent =
+            mean !== null ? mean.toFixed(1) : 'N/A';
+        statsContainer.style.display = 'block';
+    } else {
+        statsContainer.style.display = 'none';
+    }
 }
 
 function vote(estimate) {
@@ -178,4 +188,10 @@ function clearEstimates() {
         type: 'Clear',
         room_id: roomId
     }));
+}
+
+async function fetchMean() {
+    const response = await fetch(`/api/room/${roomId}/mean`);
+    if (!response.ok) return null;
+    return await response.json();
 }

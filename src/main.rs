@@ -36,6 +36,29 @@ async fn create_room(rooms: &State<Rooms>) -> Json<String> {
     Json(room_id)
 }
 
+#[get("/api/room/<room_id>/mean")]
+async fn get_mean(room_id: String, rooms: &State<Rooms>) -> Json<Option<f64>> {
+    let rooms_lock = rooms.read().await;
+
+    let Some(room) = rooms_lock.get(&room_id) else {
+        return Json(None);
+    };
+
+    let all_estimates: Vec<f64> = room
+        .users
+        .values()
+        .filter_map(|u| u.estimate.as_ref())
+        .filter_map(|e| e.parse::<f64>().ok())
+        .collect();
+
+    if all_estimates.is_empty() {
+        return Json(None);
+    }
+
+    let sum: f64 = all_estimates.iter().sum();
+    Json(Some(sum / all_estimates.len() as f64))
+}
+
 #[get("/ws")]
 fn ws(ws: WebSocket, rooms: &State<Rooms>) -> Channel<'static> {
     let rooms = rooms.inner().clone();
@@ -287,5 +310,5 @@ fn rocket() -> _ {
                 Options::Missing | Options::NormalizeDirs,
             ),
         )
-        .mount("/", routes![root, session, create_room, ws])
+        .mount("/", routes![root, session, create_room, get_mean, ws])
 }
