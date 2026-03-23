@@ -7,6 +7,10 @@ createBtn.addEventListener('click', async () => {
         alert('Please enter your name');
         return;
     }
+    if (name.length > 15) {
+        alert('Name must not exceed 15 characters');
+        return;
+    }
 
     const response = await fetch('/api/create_room', { method: 'POST' });
     const roomId = await response.json();

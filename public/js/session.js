@@ -25,6 +25,10 @@ function submitName() {
         alert('Please enter your name');
         return;
     }
+    if (name.length > 15) {
+        alert('Name must not exceed 15 characters');
+        return;
+    }
 
     userName = name;
     const url = new URL(window.location);

@@ -225,6 +225,9 @@ async fn broadcast_to_room(rooms: &Rooms, room_id: &str, message: ServerMessage)
 async fn handle_message(msg: ClientMessage, rooms: &Rooms) -> Result<ServerMessage, String> {
     match msg {
         ClientMessage::Join { room_id, name } => {
+            if name.len() > 15 {
+                return Err("Name must not exceed 15 characters".to_string());
+            }
             let mut rooms_lock = rooms.write().await;
             let room = rooms_lock.get_mut(&room_id).ok_or("Room not found")?;
 
@@ -244,6 +247,9 @@ async fn handle_message(msg: ClientMessage, rooms: &Rooms) -> Result<ServerMessa
             user_id,
             name,
         } => {
+            if name.len() > 15 {
+                return Err("Name must not exceed 15 characters".to_string());
+            }
             let mut rooms_lock = rooms.write().await;
             let room = rooms_lock.get_mut(&room_id).ok_or("Room not found")?;
 
